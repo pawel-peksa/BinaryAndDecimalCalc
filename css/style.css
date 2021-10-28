@@ -37,7 +37,7 @@ form .operator-bar {
   color: #fff;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, .2);
+  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   margin: 4px;
   cursor: pointer;
@@ -46,7 +46,6 @@ form .operator-bar {
 [class*="display-number__value"].active {
   display: flex;
 }
-
 
 .result-bit {
   margin-top: 10px;
