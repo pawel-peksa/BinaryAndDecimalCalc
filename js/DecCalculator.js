@@ -45,9 +45,6 @@ class DecCalculator extends Calculator {
       box.addEventListener("keydown", (e) => {
         e.preventDefault();
         e.target.innerText = e.key;
-        // if (e.target.innerText.length > 1) {
-        //   e.target.innerText = e.target.innerText.substr(0, 1);
-        // }
       });
     });
 
