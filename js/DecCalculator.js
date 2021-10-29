@@ -1,6 +1,10 @@
 import Calculator from "./Calculator";
 
 class DecCalculator extends Calculator {
+  constructor(selectorName) {
+    super(selectorName);
+    this.toolTip = this.$calculatorDOMElement.querySelector(".popover");
+  }
   //allow to edit oragne boxes when clicked
   changeNumber(root) {
     root.firstElementChild.setAttribute("contenteditable", "true");
@@ -23,49 +27,45 @@ class DecCalculator extends Calculator {
     return result;
   }
 
+  formatInvalid(invalid) {
+    if (invalid) {
+      this.toolTip.lastElementChild.innerText =
+        "Wartości muszą być cyframi (0-9)";
+      this.toolTip.style.backgroundColor = "#ffe6e6";
+    } else {
+      this.toolTip.lastElementChild.innerText = "Naciśnij aby dodać wartości";
+      this.toolTip.style.backgroundColor = "";
+    }
+  }
+
   validateAndFormat() {
     const boxes =
       this.$calculatorDOMElement.querySelectorAll(".display-number");
-    const toolTip = this.$calculatorDOMElement.querySelector(".popover");
-
-    //set default text on hidden tooltip
-    toolTip.lastElementChild.innerText = "Naciśnij aby dodać wartości";
 
     //show tooltip when box clicked
     //clear box when clicked
     [...boxes].forEach((box) => {
       box.firstElementChild.addEventListener("click", (e) => {
-        toolTip.classList.add("show");
+        this.toolTip.lastElementChild.innerText = "Naciśnij aby dodać wartości";
+        this.toolTip.classList.add("show");
         e.currentTarget.innerText = "";
       });
     });
 
     //allow only one char in the box
+    //enter to blur
     [...boxes].forEach((box) => {
       box.addEventListener("keydown", (e) => {
         e.preventDefault();
-        e.target.innerText = e.key;
-      });
-    });
-
-    // Not allow to write shit in the boxes
-    [...boxes].forEach((box) => {
-      box.addEventListener("focusout", (e) => {
-        if (![0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(+e.target.innerText)) {
-          toolTip.lastElementChild.innerText =
-            "Wartości muszą być cyframi (0-9)";
-          toolTip.style.backgroundColor = "#ffe6e6";
-          //edit wrong box
-          e.target.style.color = "#450000";
-          e.target.focus();
-          //hide +
-          toolTip.previousElementSibling.style.visibility = "hidden";
+        if ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(+e.key)) {
+          e.target.innerText = e.key;
+          this.formatInvalid(false);
+        } else if (e.key === "Enter") {
+          e.target.blur();
+          this.formatInvalid(false);
         } else {
-          // reset style when OK
-          toolTip.lastElementChild.innerText = "Naciśnij aby dodać wartości";
-          toolTip.style.backgroundColor = "";
-          e.target.style.color = "";
-          toolTip.previousElementSibling.style.visibility = "";
+          e.target.innerText = "";
+          this.formatInvalid(true);
         }
       });
     });
@@ -75,6 +75,7 @@ class DecCalculator extends Calculator {
       box.addEventListener("focusout", (e) => {
         if (e.target.innerText === "") {
           e.target.innerText = "0";
+          this.formatInvalid(false);
         }
       });
     });
@@ -82,13 +83,13 @@ class DecCalculator extends Calculator {
 
   initEvents() {
     super.initEvents();
-
     this.validateAndFormat();
 
     // Run calculator
     this.$calculatorDOMElement
       .querySelector(".operator-bar span")
       .addEventListener("click", () => {
+        this.toolTip.classList.remove("show");
         this.checkNumber();
         this.updateResult();
       });
